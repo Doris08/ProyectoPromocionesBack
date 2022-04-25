@@ -23,16 +23,47 @@ export default class PromoEstablecimientoController{
         const { id } = req.params;
     
         if (Number.isNaN(id)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
-      
-        if (!tipo_aviso) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'No se encontró el aviso indicado');
     
-        const promoAviso = await PromoAviso.findOne({
+        const promoEstablecimiento = await PromoEstablecimiento.findOne({
             where: {
               id,
             },
           });
       
-          return res.status(HttpCode.HTTP_OK).json(promoAviso);
+          return res.status(HttpCode.HTTP_OK).json(promoEstablecimiento);
+    }
+
+    static async update(req, res) {
+        const { nombre, activo } = req.body;
+    
+        const promoEstablecimiento = await PromoEstablecimiento.update(
+          {
+            nombre, activo
+          },
+          {
+            where: {
+              id: req.params.id,
+            },
+            returning: ['id'],
+          },
+        );
+    
+        return res.status(HttpCode.HTTP_OK).json(promoEstablecimiento[0]);
+    }
+
+    static async destroy(req, res) {
+        const { id } = req.params;
+        if (Number.isNaN(id)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
+    
+        await PromoEstablecimiento.destroy({
+          where: {
+            id: id
+          },
+        });
+    
+        return res.status(HttpCode.HTTP_OK).json({
+          message: 'Establecimiento Eliminado',
+        });
     }
 
 }
